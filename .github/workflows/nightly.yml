@@ -106,7 +106,6 @@ jobs:
           cp src-tauri/target/release/bundle/appimage/*.AppImage staging/ 2>/dev/null || true
           cp src-tauri/target/release/bundle/rpm/*.rpm staging/ 2>/dev/null || true
           cp src-tauri/target/release/bundle/msi/*.msi staging/ 2>/dev/null || true
-          cp src-tauri/target/release/bundle/nsis/*.exe staging/ 2>/dev/null || true
           cp src-tauri/target/release/bundle/dmg/*.dmg staging/ 2>/dev/null || true
           ls -la staging/
 
@@ -185,7 +184,6 @@ jobs:
           - **M-series Mac**: \`aarch64.dmg\`
 
           ### Windows
-          - **Setup Installer**: \`.exe\`
           - **MSI Installer**: \`.msi\`
 
           ---
@@ -198,7 +196,7 @@ jobs:
           ## macOS Installation
           Download the DMG, open it, and drag the app to Applications.
           If you see \"app damaged\" error: \`xattr -cr \"/Applications/Revelations Launcher.app\"\`" \
-            --prerelease
+            --latest
 
   cleanup:
     needs: release
