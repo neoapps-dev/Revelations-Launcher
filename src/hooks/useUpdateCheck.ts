@@ -1,23 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import pkg from "../../package.json";
 
-const CURRENT_VERSION = pkg.version;
 const REPO_URL = "https://api.github.com/repos/itsRevela/Revelations-Launcher/releases/latest";
-
-function isNewerVersion(latest: string, current: string): boolean {
-  const latestParts = latest.split('.').map(Number);
-  const currentParts = current.split('.').map(Number);
-
-  for (let i = 0; i < Math.max(latestParts.length, currentParts.length); i++) {
-    const latestPart = latestParts[i] || 0;
-    const currentPart = currentParts[i] || 0;
-
-    if (latestPart > currentPart) return true;
-    if (latestPart < currentPart) return false;
-  }
-
-  return false;
-}
+const LAST_SEEN_KEY = "lce-launcher-last-seen-release";
 
 export function useUpdateCheck() {
   const [updateMessage, setUpdateMessage] = useState<string | null>(null);
@@ -28,14 +12,35 @@ export function useUpdateCheck() {
       if (!response.ok) return;
 
       const data = await response.json();
-      const latestVersion = data.tag_name.replace(/^v/, '');
+      const publishedAt = data.published_at;
+      if (!publishedAt) return;
 
-      if (isNewerVersion(latestVersion, CURRENT_VERSION)) {
-        setUpdateMessage(`Version ${data.tag_name} is now available!`);
+      const lastSeen = localStorage.getItem(LAST_SEEN_KEY);
+      if (!lastSeen) {
+        // First launch: store current release as seen
+        localStorage.setItem(LAST_SEEN_KEY, publishedAt);
+        return;
+      }
+
+      if (publishedAt > lastSeen) {
+        setUpdateMessage("A new launcher update is available!");
       }
     } catch (e) {
       console.error("Failed to check for updates:", e);
     }
+  }, []);
+
+  const clearUpdateMessage = useCallback(() => {
+    setUpdateMessage(null);
+    // Mark as seen when dismissed
+    fetch(REPO_URL)
+      .then(r => r.json())
+      .then(data => {
+        if (data.published_at) {
+          localStorage.setItem(LAST_SEEN_KEY, data.published_at);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -44,6 +49,6 @@ export function useUpdateCheck() {
 
   return {
     updateMessage,
-    clearUpdateMessage: () => setUpdateMessage(null),
+    clearUpdateMessage,
   };
 }
