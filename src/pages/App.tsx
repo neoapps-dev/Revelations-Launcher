@@ -346,7 +346,7 @@ export default function App() {
                     className="shrink-0 p-4 flex justify-between items-end text-[10px] text-[#A0A0A0] mc-text-shadow bg-gradient-to-t from-black/80 to-transparent uppercase tracking-widest opacity-60 font-['Mojangles']"
                     style={{ fontWeight: "normal" }}
                   >
-                    <div className="flex-1 text-left whitespace-nowrap">Version: 1.1.0</div>
+                    <div className="flex-1 text-left whitespace-nowrap">Version: 1.1.1</div>
                     <div className="flex-[2] text-center whitespace-nowrap">
                       Not affiliated with Mojang AB or Microsoft. "Minecraft" is a trademark of Mojang Synergies AB.
                     </div>

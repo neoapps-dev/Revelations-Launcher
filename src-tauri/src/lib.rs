@@ -823,7 +823,7 @@ async fn setup_macos_runtime(window: tauri::Window, app: AppHandle) -> Result<()
     }
 }
 
-/// Build a minimal LCE skin pack (.pck) containing a single skin PNG.
+/// Build a LCE skin pack (.pck) with info asset and a single skin PNG.
 fn build_skin_pck(skin_png: &[u8], display_name: &str, is_alex: bool) -> Vec<u8> {
     let mut buf = Vec::new();
 
@@ -836,13 +836,8 @@ fn build_skin_pck(skin_png: &[u8], display_name: &str, is_alex: bool) -> Vec<u8>
         buf.extend_from_slice(&[0, 0, 0, 0]);
     }
 
-    // ANIM flags for Alex: disable default arms, then BOX adds slim replacements
-    // 0x40000 = MODERN_WIDE_MODEL
-    // 0x800   = RIGHT_ARM_DISABLED
-    // 0x1000  = LEFT_ARM_DISABLED
     let anim_str = if is_alex { "0x00041800" } else { "0x00040000" };
 
-    // BOX entries for Alex: 3px-wide arms, mirrored left from right (64x32 UV)
     let boxes: Vec<&str> = if is_alex {
         vec![
             "ARM0 -2 -2 -2 3 12 4 40 16 0 0 0",
@@ -852,56 +847,74 @@ fn build_skin_pck(skin_png: &[u8], display_name: &str, is_alex: bool) -> Vec<u8>
         vec![]
     };
 
+    // Property type definitions
+    let mut prop_types: Vec<&str> = vec![
+        "PACKID", "DISPLAYNAME", "GAME_FLAGS", "FREE", "ANIM",
+    ];
+    let box_idx = if is_alex {
+        prop_types.push("BOX");
+        Some(prop_types.len() - 1)
+    } else {
+        None
+    };
+
     // Version
     w32(&mut buf, 3);
 
-    // Property type definitions
-    let mut prop_types = vec!["DISPLAYNAME", "GAME_FLAGS", "FREE", "ANIM"];
-    if is_alex {
-        prop_types.push("BOX");
-    }
+    // Write property type definitions
     w32(&mut buf, prop_types.len() as u32);
     for (i, name) in prop_types.iter().enumerate() {
         w32(&mut buf, i as u32);
         wstr(&mut buf, name);
     }
 
-    // File count: 1
-    w32(&mut buf, 1);
+    // File count: 2 (info + skin)
+    w32(&mut buf, 2);
 
-    // File header
-    let filename = "dlcskin00000000.png";
+    // File header 0: info file "0" (no data, type=4)
+    w32(&mut buf, 0); // data size = 0
+    w32(&mut buf, 4); // type 4 = InfoFile
+    wstr(&mut buf, "0");
+
+    // File header 1: skin PNG
     w32(&mut buf, skin_png.len() as u32);
-    w32(&mut buf, 0); // asset type 0 = SkinFile
-    wstr(&mut buf, filename);
+    w32(&mut buf, 0); // type 0 = SkinFile
+    wstr(&mut buf, "dlcskin99990000.png");
 
-    // Properties (after all headers, before data)
-    let num_props = 4 + boxes.len() as u32;
-    w32(&mut buf, num_props);
+    // Properties for file 0 (info): PACKID
+    w32(&mut buf, 1); // 1 property
+    w32(&mut buf, 0); // PACKID index
+    wstr(&mut buf, "9999");
 
-    // DISPLAYNAME (index 0)
-    w32(&mut buf, 0);
+    // Properties for file 1 (skin)
+    let num_skin_props = 4 + boxes.len() as u32;
+    w32(&mut buf, num_skin_props);
+
+    // DISPLAYNAME (index 1)
+    w32(&mut buf, 1);
     wstr(&mut buf, display_name);
 
-    // GAME_FLAGS (index 1)
-    w32(&mut buf, 1);
+    // GAME_FLAGS (index 2)
+    w32(&mut buf, 2);
     wstr(&mut buf, "0x18");
 
-    // FREE (index 2)
-    w32(&mut buf, 2);
+    // FREE (index 3)
+    w32(&mut buf, 3);
     wstr(&mut buf, "1");
 
-    // ANIM (index 3)
-    w32(&mut buf, 3);
-    wstr(&mut buf, &anim_str);
+    // ANIM (index 4)
+    w32(&mut buf, 4);
+    wstr(&mut buf, anim_str);
 
-    // BOX entries for Alex slim arms (index 4)
-    for box_str in &boxes {
-        w32(&mut buf, 4);
-        wstr(&mut buf, box_str);
+    // BOX entries for Alex slim arms
+    if let Some(bi) = box_idx {
+        for box_str in &boxes {
+            w32(&mut buf, bi as u32);
+            wstr(&mut buf, box_str);
+        }
     }
 
-    // File data
+    // File data for skin (info file has 0 bytes)
     buf.extend_from_slice(skin_png);
 
     buf
