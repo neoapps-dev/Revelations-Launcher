@@ -16,7 +16,7 @@ class RPC {
     if (this.initializationPromise) return this.initializationPromise;
     this.initializationPromise = (async () => {
       try {
-        await start("1482504445152460871");
+        await start("1492871191499640892");
         sessionStorage.setItem('lce_rpc_started', 'true');
         this.initialized = true;
       } catch (e) {
