@@ -1,0 +1,38 @@
+{
+  "name": "revelations-launcher",
+  "private": true,
+  "version": "1.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:build": "tauri build && pnpm run post-build:macos",
+    "post-build:macos": "sh src-tauri/scripts/post-build-macos.sh"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-opener": "^2",
+    "framer-motion": "^12.36.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@types/three": "^0.183.1",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@tailwindcss/vite": "^4.2.1",
+    "@tauri-apps/cli": "^2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
+    "typescript": "~5.8.3",
+    "vite": "^7.3.2",
+    "tauri-plugin-drpc": "^1.0.3",
+    "tauri-plugin-gamepad-api": "^0.0.5"
+  }
+}
