@@ -1,5 +1,4 @@
 <div align="center">
-  <img height="150" src="public/images/icon.png">
   <h1>Revelations Launcher</h1>
   <p>FOSS cross-platform launcher for Minecraft Legacy Console Edition</p>
 </div>
