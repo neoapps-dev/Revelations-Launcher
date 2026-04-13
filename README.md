@@ -32,16 +32,16 @@ More versions coming in future updates.
 
 ---
 
-### LATEST: v1.1.0
+### LATEST: v1.1.2
 
-- Automatic game update detection with one-click updates
-- Custom skin support with PCK packing (Steve & Alex models)
+- Automatic game update detection with one-click updates (for custom instances, too!)
+- Custom skin support with PCK packing (Steve & Alex models) (Other players can see your skin)
 - Skins are added as their own DLC skin pack instead of replacing the default
 - Skin library with import from file or Minecraft username
 - Security hardening (URL validation, path traversal protection, download size caps, CSP)
 - Smart install/update that preserves saves, settings, and servers
-- Single-instance support (re-focuses existing window)
-- Music pauses on window blur, resumes on focus
+- Single-instance support (re-focuses existing window from tray)
+- Music pauses on window unfocus, resumes on focus
 
 ---
 
